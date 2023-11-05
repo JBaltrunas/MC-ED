@@ -57,23 +57,21 @@ def save_area(fromV, toV, name):
     fx = min(fromV.x, toV.x)
     fy = min(fromV.y, toV.y)
     fz = min(fromV.z, toV.z)
-    fromV = Vec3(fx, fy, fz)
     tx = max(fromV.x, toV.x)
     ty = max(fromV.y, toV.y)
     tz = max(fromV.z, toV.z)
+
+    fromV = Vec3(fx, fy, fz)
     size = Vec3(tx - fx + 1, ty - fy + 1, tz - fz + 1)
-    center = Vec3(size.x // 2, size.y // 2, size.z // 2)
+    center = Vec3(size.x // 2, 0, size.z // 2)
 
     file = open(f"Buildings/{name}.txt", "w")
     for x in range(size.x):
         for y in range(size.y):
             for z in range(size.z):
-                id = mc.getBlock(fromV + Vec3(x, y, z))
-                if id == block.AIR.id:
-                    continue
-
-                file.write(f"{x - center.x},{y - center.y},{z - center.z},{id}\n")
-
+                b = mc.getBlockWithData(fromV + Vec3(x, y, z))
+                if b.id != block.AIR.id:
+                    file.write(f"{x - center.x},{y - center.y},{z - center.z},{b.id},{b.data}\n")
     file.close()
 
 
@@ -82,17 +80,11 @@ def build_area(center, name):
     lines = file.read().split("\n")[:-1]
     file.close()
     for line in lines:
-        x, y, z, id = [int(i) for i in line.split(",")]
+        x, y, z, id, data = [int(i) for i in line.split(",")]
         vec = center + Vec3(x, y, z)
-        mc.setBlock(vec, id)
+        mc.setBlock(vec, id, data)
+
 
 mc = Minecraft.create()
-# build_castle(Vec3(377, 15, 832))
-save_area(Vec3(375, 18, 837), Vec3(377, 18, 839), "House")
-print(open(f"Buildings/House.txt", "r").read())
-build_area(Vec3(378, 20, 839), "House")
-build_area(Vec3(378, 21, 839), "House")
-build_area(Vec3(378, 22, 839), "House")
-
-
-
+save_area(Vec3(-127, 69, -299), Vec3(-118, 64, -289), "House")
+build_area(Vec3(-180, 80, -294), "House")
