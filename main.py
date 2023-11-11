@@ -66,6 +66,10 @@ def save_area(fromV, toV, name):
     center = Vec3(size.x // 2, 0, size.z // 2)
 
     file = open(f"Buildings/{name}.txt", "w")
+    f = -center
+    t = size - center
+    file.write(f"{f.x},{f.y},{f.z}\n")
+    file.write(f"{t.x},{t.y},{t.z}\n")
     for x in range(size.x):
         for y in range(size.y):
             for z in range(size.z):
@@ -79,12 +83,30 @@ def build_area(center, name):
     file = open(f"Buildings/{name}.txt")
     lines = file.read().split("\n")[:-1]
     file.close()
-    for line in lines:
+    f, t = [x.split(",") for x in lines[:2]]
+    f = Vec3(int(f[0]), int(f[1]), int(f[2]))
+    t = Vec3(int(t[0]), int(t[1]), int(t[2]))
+    mc.setBlocks(center - f, center + t, block.AIR)
+    for line in lines[2:]:
         x, y, z, id, data = [int(i) for i in line.split(",")]
         vec = center + Vec3(x, y, z)
         mc.setBlock(vec, id, data)
 
 
 mc = Minecraft.create()
-save_area(Vec3(-127, 69, -299), Vec3(-118, 64, -289), "House")
-build_area(Vec3(-180, 80, -294), "House")
+
+while True:
+    msgs = mc.events.pollChatPosts()
+    for msg in msgs:
+        if msg.message == "help":
+            mc.postToChat(
+                """
+                help -> prints all cmds
+                bld x,y,z name -> builds building by name on (x, y, z)
+                bld name -> builds building by name on player (x, y, z)
+                """)
+        elif msg.message.startswith("bld"):
+            l = msg.message.split(" ")
+            if len(l) == 2:
+                pos = mc.player.getPos()
+                build_area(pos, l[1])
