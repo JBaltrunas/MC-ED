@@ -80,7 +80,10 @@ def save_area(fromV, toV, name):
 
 
 def build_area(center, name):
-    file = open(f"Buildings/{name}.txt")
+    try:
+        file = open(f"Buildings/{name}.txt")
+    except:
+        mc.postToChat(f"Can't create {name}")
     lines = file.read().split("\n")[:-1]
     file.close()
     f, t = [x.split(",") for x in lines[:2]]
@@ -107,6 +110,18 @@ while True:
                 """)
         elif msg.message.startswith("bld"):
             l = msg.message.split(" ")
-            if len(l) == 2:
-                pos = mc.player.getPos()
-                build_area(pos, l[1])
+            if len(l) is 2 or 3:
+                if len(l) == 2:
+                    pos = mc.player.getPos()
+                    name = l[1]
+                else:
+                    try:
+                        pos = [int(x) for x in l[1].split(",")]
+                        pos = Vec3(pos[0], pos[1], pos[2])
+                        name = l[2]
+                    except:
+                        mc.postToChat("Invalid coords")
+
+                build_area(pos, name)
+            else:
+                mc.postToChat("To many args")
