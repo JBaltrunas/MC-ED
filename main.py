@@ -96,21 +96,54 @@ def build_area(center, name):
         mc.setBlock(vec, id, data)
 
 
+def move_player_to_position(name):
+    f = open("Positions/Positions.txt")
+    lines = f.read().split("\n")
+    f.close()
+    for line in lines:
+        if line.startswith(name + ','):
+            x, y, z = line.split(',')[1:]
+            x = int(x)
+            y = int(y)
+            z = int(z)
+            mc.player.setPos(Vec3(x, y, z))
+            return
+    mc.postToChat(f"Position '{name}' not found")
+
+
+def save_position(name):
+    f = open("Positions/Positions.txt")
+    lines = f.read().split("\n")
+    f.close()
+    for line in lines:
+        if line.startswith(name + ','):
+            mc.postToChat(f"Position '{name}' already exists")
+            f.close()
+            return
+
+    f = open("Positions/Positions.txt", "a")
+    p = mc.player.getPos()
+    f.write(f"{name},{int(p.x)},{int(p.y)},{int(p.z)}\n")
+    f.close()
+
+
 mc = Minecraft.create()
 
 while True:
-    msgs = mc.events.pollChatPosts()
-    for msg in msgs:
-        if msg.message == "help":
+    posts = mc.events.pollChatPosts()
+    for post in posts:
+        if post.message == "help":
             mc.postToChat(
                 """
                 help -> prints all cmds
                 bld x,y,z name -> builds building by name on (x, y, z)
                 bld name -> builds building by name on player (x, y, z)
+                mp posName -> moves player to selected position
+                save posName -> saves position with selected name
                 """)
-        elif msg.message.startswith("bld"):
-            l = msg.message.split(" ")
-            if len(l) is 2 or 3:
+        elif post.message.startswith("bld"):
+            l = post.message.split(" ")
+            if len(l) == 2 or len(l) == 3:
                 if len(l) == 2:
                     pos = mc.player.getPos()
                     name = l[1]
@@ -125,3 +158,19 @@ while True:
                 build_area(pos, name)
             else:
                 mc.postToChat("To many args")
+        elif post.message.startswith('mp'):
+            words = post.message.split(" ")
+            if len(words) == 2:
+                pname = words[1]
+                move_player_to_position(pname)
+            else:
+                mc.postToChat("To many args")
+        elif post.message.startswith("save"):
+            words = post.message.split(" ")
+            if len(words) == 2:
+                pname = words[1]
+                save_position(pname)
+            else:
+                mc.postToChat("To many args")
+        else:
+            mc.postToChat("Unknown cmd")
