@@ -138,6 +138,7 @@ while True:
                 help -> prints all cmds
                 bld x,y,z name -> builds building by name on (x, y, z)
                 bld name -> builds building by name on player (x, y, z)
+                savebld name fx,fy,fz tx,ty,tz -> saves blocks as name from fx,fy,fz to tx,ty,tz
                 mp posName -> moves player to selected position
                 save posName -> saves position with selected name
                 """)
@@ -172,5 +173,20 @@ while True:
                 save_position(pname)
             else:
                 mc.postToChat("To many args")
+        elif post.message.startswith("savebld"):
+            l = post.message.split(" ")
+            if len(l) == 4:
+                name = l[1]
+                try:
+                    pos = [int(x) for x in l[2].split(",")]
+                    f = Vec3(pos[0], pos[1], pos[2])
+                    pos = [int(x) for x in l[3].split(",")]
+                    t = Vec3(pos[0], pos[1], pos[2])
+                    save_area(f, t, name)
+                except:
+                    mc.postToChat("Invalid coords")
+            else:
+                mc.postToChat("Invalid count of args")
         else:
             mc.postToChat("Unknown cmd")
+
