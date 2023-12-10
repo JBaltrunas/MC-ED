@@ -1,6 +1,7 @@
 from mcpi.minecraft import Minecraft
 from mcpi.vec3 import Vec3
 import mcpi.block as block
+import time
 
 
 def build_castle(center, area_size=20, wall_width=2, height=10, offset=5):
@@ -130,18 +131,16 @@ def save_position(name):
 mc = Minecraft.create()
 
 while True:
+    time.sleep(1)
     posts = mc.events.pollChatPosts()
     for post in posts:
         if post.message == "help":
-            mc.postToChat(
-                """
-                help -> prints all cmds
-                bld x,y,z name -> builds building by name on (x, y, z)
-                bld name -> builds building by name on player (x, y, z)
-                savebld name fx,fy,fz tx,ty,tz -> saves blocks as name from fx,fy,fz to tx,ty,tz
-                mp posName -> moves player to selected position
-                save posName -> saves position with selected name
-                """)
+            mc.postToChat("help -> prints all cmds")
+            mc.postToChat("bld x,y,z name -> builds building by name on (x, y, z)")
+            mc.postToChat("bld name -> builds building by name on player (x, y, z)")
+            mc.postToChat("svbld name fx,fy,fz tx,ty,tz -> saves blocks as name from fx,fy,fz to tx,ty,tz")
+            mc.postToChat("mp posName -> moves player to selected position")
+            mc.postToChat("save posName -> saves position with selected name")
         elif post.message.startswith("bld"):
             l = post.message.split(" ")
             if len(l) == 2 or len(l) == 3:
@@ -173,7 +172,7 @@ while True:
                 save_position(pname)
             else:
                 mc.postToChat("To many args")
-        elif post.message.startswith("savebld"):
+        elif post.message.startswith("svbld"):
             l = post.message.split(" ")
             if len(l) == 4:
                 name = l[1]
